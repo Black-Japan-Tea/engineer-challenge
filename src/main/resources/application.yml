@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: orbitto-auth-service
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:orbitto_auth}
+    username: ${DB_USER:orbitto}
+    password: ${DB_PASSWORD:orbitto}
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: ${HTTP_PORT:8080}
+
+grpc:
+  server:
+    port: ${GRPC_PORT:9090}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+orbitto:
+  auth:
+    jwt:
+      issuer: ${JWT_ISSUER:orbitto-auth}
+      access-ttl-minutes: ${JWT_ACCESS_TTL_MINUTES:15}
+      refresh-ttl-days: ${JWT_REFRESH_TTL_DAYS:7}
+      secret: ${JWT_SECRET:dev-secret-change-in-production-min-256-bits-please-use-openssl-rand}
+    password-reset:
+      token-ttl-minutes: ${PASSWORD_RESET_TTL_MINUTES:60}
+    rate-limit:
+      login-per-email-per-window: ${RATE_LOGIN_PER_EMAIL:5}
+      login-window-minutes: ${RATE_LOGIN_WINDOW_MINUTES:15}
+      register-per-ip-per-hour: ${RATE_REGISTER_PER_IP:20}
+      password-reset-per-email-per-hour: ${RATE_RESET_PER_EMAIL:3}
+
+logging:
+  level:
+    root: INFO
+    com.orbitto.auth: DEBUG

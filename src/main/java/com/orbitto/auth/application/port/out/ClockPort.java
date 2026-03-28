@@ -1,0 +1,8 @@
+package com.orbitto.auth.application.port.out;
+
+import java.time.Instant;
+
+public interface ClockPort {
+
+    Instant now();
+}

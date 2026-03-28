@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: orbitto_auth
+      POSTGRES_USER: orbitto
+      POSTGRES_PASSWORD: orbitto
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orbitto -d orbitto_auth"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  auth-service:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: orbitto_auth
+      DB_USER: orbitto
+      DB_PASSWORD: orbitto
+      GRPC_PORT: "9090"
+      HTTP_PORT: "8080"
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-prod-use-openssl-rand-base64-48}
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+
+volumes:
+  pgdata:
